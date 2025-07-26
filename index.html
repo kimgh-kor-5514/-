@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>운전 적합성 자가 진단</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; }
+    .question { margin-bottom: 25px; }
+    .options label { margin-right: 15px; display: inline-block; }
+    .result { font-weight: bold; margin-top: 30px; white-space: pre-line; }
+  </style>
+</head>
+<body>
+  <h1>운전 적합성 자가 진단 (5점 척도)</h1>
+  <form id="surveyForm">
+    <div id="questions"></div>
+    <button type="submit">결과 보기</button>
+  </form>
+  <div class="result" id="result"></div>
+
+  <script>
+    const questionsText = [
+      "매일 복용하는 약 중에 졸음을 유발하는 약이 있다.",
+      "예전 과속 등으로 인한 벌금을 1년에 3번 이상 부과받은 적이 있나요?",
+      "갑작스럽게 발작을 일으킨 적이 있나요?",
+      "의식을 잃을 수 있는 질환이 있으신가요?",
+      "운전 중 골목 길에서 좌·우회전 할 시에 전방에서 오는 차에 대한 대처가 가능하신가요?",
+      "주차를 하거나 좌·우회전을 할 때 거리감을 예측하기 어렵나요?",
+      "핸들을 돌리거나 브레이크를 밟을 때 손이나 발에 힘이 부족하다고 느끼나요?",
+      "운전 중 엑셀과 브레이크를 헷갈린 적이 있나요?",
+      "차선을 유지하는 것이 힘들다고 느낀 적이 있나요?",
+      "주차할 때 차의 위치를 정확하게 맞추기 어려운 편인가요?",
+      "최근 3개월 내에 사고를 낼 뻔한 적이 있나요?",
+      "최근 1년 내에 실제로 사고를 낸 적이 있나요?",
+      "운전 중 도로 표지판이나 신호등 글씨를 식별하는 데 어려움이 있나요?",
+      "옆에서 차가 다가오는 소리를 듣지 못한 적이 있나요?",
+      "밤에 운전할 때 눈이 부시거나 잘 안 보여서 불안한 적이 있나요?",
+      "가까운 거리의 물체가 흐리게 보인 적이 있나요?",
+      "평소 갑작스러운 변화에 어떻게 행동해야 할지 생각하기 어렵다.",
+      "운전 중 신호등이 무엇을 의미하는지 긴가민가할 때가 있나요?",
+      "운전 중 브레이크와 가속 페달이 헷갈릴 때가 있나요?",
+      "신호가 바뀌는 순간 바로 반응하기 어렵다고 느낀 적이 있나요?",
+      "복잡한 교차로나 신호가 많은 도로에서 혼란스러움을 느낀 적이 있나요?"
+    ];
+
+    window.onload = () => {
+      const container = document.getElementById("questions");
+      questionsText.forEach((text, i) => {
+        const div = document.createElement("div");
+        div.className = "question";
+        div.innerHTML = `
+          <p><strong>${i + 1}. ${text}</strong></p>
+          <div class="options">
+            <label><input type="radio" name="q${i}" value="5"> 매우 그렇다</label>
+            <label><input type="radio" name="q${i}" value="4"> 그렇다</label>
+            <label><input type="radio" name="q${i}" value="3"> 보통이다</label>
+            <label><input type="radio" name="q${i}" value="2"> 그렇지 않다</label>
+            <label><input type="radio" name="q${i}" value="1"> 매우 그렇지 않다</label>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    };
+
+    document.getElementById("surveyForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const totalQuestions = questionsText.length;
+      let totalScore = 0;
+
+      for (let i = 0; i < totalQuestions; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (!selected) {
+          document.getElementById("result").innerText = "모든 문항에 응답해 주세요.";
+          return;
+        }
+        totalScore += parseInt(selected.value);
+      }
+
+      const maxScore = totalQuestions * 5;
+      const average = totalScore / totalQuestions;
+      let feedback = "";
+
+      if (average >= 4.0) {
+        feedback = "⚠️ 주의가 매우 필요한 상태입니다. 전문가 상담을 권장합니다.";
+      } else if (average >= 3.0) {
+        feedback = "🔶 일부 항목에서 위험 요소가 있습니다. 신중한 운전이 필요합니다.";
+      } else {
+        feedback = "✅ 운전 적합성에는 큰 문제가 없어 보입니다.";
+      }
+
+      document.getElementById("result").innerText =
+        `📝 총 점수: ${totalScore} / ${maxScore}\n📊 평균 점수: ${average.toFixed(2)}\n\n${feedback}`;
+    });
+  </script>
+</body>
+</html>
